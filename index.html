@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Structural Trap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+  /* One deliberate look: the void. Dark only, every color set explicitly. */
+  :root {
+    --void: #03040a;
+    --mist: #b9c6e4;
+    --mist-faint: rgba(185, 198, 228, 0.42);
+    --font-voice: 'Instrument Serif', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+    --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; margin: 0; background: var(--void); color: var(--mist); overflow: hidden; }
+  body { cursor: default; -webkit-user-select: none; user-select: none; touch-action: none; }
+  body.awake { cursor: none; }
+  #world { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+
+  /* The veil: the first touch that wakes the world (and its sound). */
+  #veil {
+    position: fixed; inset: 0; display: grid; place-items: center;
+    background: radial-gradient(ellipse at center, rgba(3,4,10,0.55), var(--void) 70%);
+    transition: opacity 4s ease;
+    cursor: pointer;
+  }
+  #veil.lifted { opacity: 0; pointer-events: none; }
+  /* The end: the world slowly goes dark. */
+  #end { position: fixed; inset: 0; background: var(--void); opacity: 0; pointer-events: none; transition: opacity 14s ease-in-out; }
+  #end.on { opacity: 0.86; }
+  /* The reveal: the whole structure as ghosts, then a few lines. */
+  #reveal { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 4s ease; }
+  #reveal.on { opacity: 1; }
+  #revealText {
+    position: fixed; left: max(5vw, 16px); top: 10vh; width: min(380px, 34vw); text-align: left; pointer-events: none;
+    font-family: var(--font-voice); font-style: italic; font-size: clamp(18px, 2.2vw, 28px);
+    letter-spacing: 0.05em; color: var(--mist);
+  }
+  #revealText p { margin: 0.35em 0; opacity: 0; filter: blur(6px); transition: opacity 2.5s ease, filter 2.5s ease; text-shadow: 0 0 18px rgba(150, 175, 230, 0.45), 0 0 6px #03040a; }
+  #revealText p.on { opacity: 0.88; filter: blur(0); }
+  #revealStats {
+    position: fixed; right: max(5vw, 16px); bottom: 8vh; width: min(300px, 40vw); pointer-events: none;
+    font-family: var(--font-voice); font-size: clamp(14px, 1.3vw, 18px); color: var(--mist-faint);
+  }
+  #revealStats div { display: flex; justify-content: space-between; gap: 16px; padding: 0.4em 0; border-bottom: 1px solid rgba(185, 198, 228, 0.12); opacity: 0; transition: opacity 1.5s ease; }
+  #revealStats div.on { opacity: 1; }
+  #revealStats span { font-style: italic; }
+  #revealStats b { font-weight: 400; color: var(--mist); font-variant-numeric: tabular-nums; }
+  @media (max-width: 700px) { #revealText { left: 16px; right: 16px; width: auto; top: 5vh; } }
+  @media (max-width: 700px) { #revealStats { left: 16px; right: 16px; width: auto; bottom: 4vh; } }
+  #revealText .question { opacity: 0; transition: opacity 2s ease; pointer-events: auto; margin-top: 1.2em; }
+  #revealText .question.on { opacity: 1; }
+  #revealText .question p { opacity: 0.88; filter: none; margin-bottom: 0.6em; }
+  #revealText .question button {
+    display: block; margin: 0.35em 0; padding: 0.35em 0.9em; cursor: pointer;
+    font: inherit; font-size: 0.8em; color: var(--mist); background: rgba(185, 198, 228, 0.06);
+    border: 1px solid rgba(185, 198, 228, 0.25); border-radius: 999px; text-align: left;
+  }
+  #revealText .question button:hover { background: rgba(185, 198, 228, 0.14); }
+  #revealText .question.answered button { pointer-events: none; opacity: 0.35; }
+  #revealText .question.answered button.chosen { opacity: 1; border-color: rgba(185, 198, 228, 0.6); }
+  #revealText p.again { font-size: 0.75em; color: var(--mist-faint); margin-top: 1.4em; }
+  #begin {
+    font-family: var(--font-voice); font-style: italic; font-size: clamp(18px, 2.2vw, 26px);
+    letter-spacing: 0.08em; color: var(--mist-faint);
+    animation: breathe 5s ease-in-out infinite;
+  }
+  #veil > div { text-align: center; }
+  #notice { margin: 1.4em 0 0; font: 12px/1.4 var(--font-voice); font-style: italic; letter-spacing: 0.06em; color: var(--mist-faint); opacity: 0.7; }
+  #notice:empty { display: none; }
+  @keyframes breathe { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.9; } }
+
+  /* Fragments: the game's rare words. */
+  #fragment {
+    position: fixed; left: 0; right: 0; bottom: 22vh; text-align: center;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    font-family: var(--font-voice); font-style: italic; font-size: clamp(20px, 2.6vw, 32px);
+    letter-spacing: 0.06em; color: var(--mist);
+    opacity: 0; filter: blur(6px); transition-property: opacity, filter; transition-timing-function: ease;
+    pointer-events: none; text-shadow: 0 0 18px rgba(150, 175, 230, 0.5);
+  }
+  #fragment.on { opacity: 0.85; filter: blur(0); }
+
+  #debug {
+    position: fixed; top: calc(8px + env(safe-area-inset-top, 0px)); left: max(10px, env(safe-area-inset-left, 0px));
+    font: 11px/1 var(--font-mono); color: var(--mist-faint); pointer-events: none;
+  }
+  @media (prefers-reduced-motion: reduce) { #begin { animation: none; opacity: 0.7; } }
+</style>
+</head>
+<body>
+<canvas id="world"></canvas>
+<div id="fragment" aria-live="polite"></div>
+<div id="end"></div>
+<canvas id="reveal"></canvas>
+<div id="revealText" aria-live="polite"></div>
+<div id="revealStats"></div>
+<div id="veil" role="button" tabindex="0" aria-label="Begin"><div><span id="begin"></span><p id="notice"></p></div></div>
+<div id="debug" hidden></div>
+
+<script src="vendor/tone/Tone.js"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three/three.module.min.js",
+  "three/addons/": "./vendor/three/addons/"
+} }
+</script>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study Results</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+  :root {
+    --void: #03040a; --panel: #0a0d18; --line: rgba(185, 198, 228, 0.14);
+    --mist: #c8d3ee; --faint: rgba(185, 198, 228, 0.55);
+    --amber: #ffa83c; --bruise: #c8358c;
+    --voice: 'Instrument Serif', Georgia, serif;
+    --ui: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color-scheme: dark;
+  }
+  body { margin: 0; background: var(--void); color: var(--mist); font: 14px/1.5 var(--ui); }
+  main { max-width: 1100px; margin: 0 auto; padding: 40px 16px 80px; }
+  h1 { font: italic 40px/1.1 var(--voice); margin: 0 0 4px; }
+  .sub { color: var(--faint); margin: 0 0 28px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+  button, label.btn { font: inherit; color: var(--mist); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+  button:hover, label.btn:hover { border-color: rgba(185, 198, 228, 0.4); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 28px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .card h2 { font: 12px var(--ui); letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); margin: 0 0 10px; }
+  .big { font: 34px/1 var(--voice); }
+  .split { margin-top: 6px; }
+  .split .row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .split .name { flex: 0 0 46%; color: var(--faint); font-size: 13px; }
+  .split .track { flex: 1; height: 8px; background: rgba(185, 198, 228, 0.08); border-radius: 4px; overflow: hidden; }
+  .split .fill { display: block; height: 100%; background: var(--amber); }
+  .split .fill.b { background: var(--bruise); }
+  .split .n { flex: 0 0 28px; text-align: right; font-variant-numeric: tabular-nums; }
+  .table { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  th { color: var(--faint); font-weight: 500; position: sticky; top: 0; background: var(--panel); }
+  .empty { color: var(--faint); padding: 24px; text-align: center; }
+  .note { color: var(--faint); font-size: 13px; margin-top: 18px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>The Structural Trap: results</h1>
+  <p class="sub" id="sub"></p>
+  <div class="bar">
+    <button id="export">Export JSON + CSV</button>
+    <label class="btn">Import runs (JSON)<input id="import" type="file" accept="application/json" hidden></label>
+  </div>
+  <div class="cards" id="cards"></div>
+  <div class="table" id="table"></div>
+  <p class="note">Runs are stored in this browser on this computer. Export after each session, and import other laptops' files here to combine them. "Unfinished" means the player left before the ending.</p>
+</main>
+<script type="module" src="src/study/results.js"></script>
+</body>
+</html>
