@@ -231,7 +231,7 @@ export const CONFIG = {
   study: {
     version: 'collapse-0.7',  // saved with each run, so runs from different builds can be told apart
     saveEvery: 10,            // seconds between saves while playing (an unfinished run is still kept)
-    endpoint: '',             // Google Apps Script web app URL that collects runs from anywhere (see tools/collect.gs); empty = this computer only
+    endpoint: 'https://script.google.com/macros/s/AKfycbzkH7Ny8qHyUO7r1mjSrPMmvM3eYfSKcnP55dpzYk9kPt-KbHdmR3g5mAcDqebqkpPeYA/exec',             // Google Apps Script web app URL that collects runs from anywhere (see tools/collect.gs); empty = this computer only
     notice: 'your play is recorded anonymously for a study.', // shown under "touch the dark" when runs are sent away
   },
 
