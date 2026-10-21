@@ -171,7 +171,7 @@ function buildSprinkles(out, sp, timers, mix) {
     modulationEnvelope: { attack: 0.005, decay: 0.4, sustain: 0, release: 0.5 },
     volume: sp.volume,
   }).connect(echo);
-  bell.maxPolyphony = 16;
+  bell.maxPolyphony = 24;
 
   const sprinkle = () => {
     pan.pan.rampTo(between(-0.85, 0.85), 0.05);
@@ -211,7 +211,7 @@ function buildTouch(out, notes, cfg, mix) {
     modulationEnvelope: { attack: 0.003, decay: 0.25, sustain: 0, release: 0.3 },
     volume: cfg.volume,
   }).connect(echo);
-  bell.maxPolyphony = 12;
+  bell.maxPolyphony = 40;   // fast movement rings many bells at once; too few voices and notes drop out (silence)
   let last = 0;
   return (x, y, speed) => {
     const now = Tone.now();

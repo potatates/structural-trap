@@ -322,6 +322,10 @@ export const CONFIG = {
     opening: 'gather what light you can.', // placeholder for Mia's line
     openingDelay: 4,        // seconds after starting before the line appears
     openingHold: 6,         // how long it stays before fading
+    // how to play, shown at the bottom until the first light is set down
+    howto: 'press and hold a light, then drag it',
+    howtoCarry: 'let go to set it down',
+    howtoAfter: 9,          // seconds after starting before it appears
     letGo: 'sometimes we have to let go of a light to save the rest.', // shown once, when a crack's dimness first spreads
     letGoMurk: 0.35,        // ...that is, when a light around a cracked one has dimmed this much
     letGoDelay: 1,          // seconds after that

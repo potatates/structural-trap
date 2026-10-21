@@ -93,6 +93,8 @@ resize();
 // ── Beginning: one touch wakes the world (browsers need a gesture for sound) ──
 const veil = document.getElementById('veil');
 const fragment = document.getElementById('fragment');
+const howto = document.getElementById('howto');
+let howtoText = '', howtoSwap = 0, playTime = 0;
 document.getElementById('begin').textContent = CONFIG.text.begin;
 // players elsewhere are told their play is recorded (only when runs are sent away)
 if (CONFIG.study.endpoint) document.getElementById('notice').textContent = CONFIG.study.notice;
@@ -175,6 +177,18 @@ function frame() {
   if (audio.started) { cracks.update(dt); arc.update(dt); }
   structure.update(t, dt);
   audio.setSour(structure.sour);
+  // how to play: shown until the first light is set down
+  if (audio.started) {
+    playTime += dt;
+    const T = CONFIG.text;
+    const want = structure.nodes.length || arc.over ? '' : playTime > T.howtoAfter ? (catching.busy ? T.howtoCarry : T.howto) : '';
+    if (want !== howtoText) {
+      howtoText = want;
+      howto.classList.remove('on');
+      clearTimeout(howtoSwap);
+      howtoSwap = setTimeout(() => { howto.textContent = want; if (want) howto.classList.add('on'); }, want && howto.textContent ? 700 : 0);
+    }
+  }
   // the one hint that a light can be let go: the first time a crack's dimness
   // has visibly spread into the lights around it
   if (!hintedLetGo && structure.nodes.some((n) => !n.cracked && n.murk > CONFIG.text.letGoMurk)) {

@@ -75,6 +75,8 @@
   #veil > div { text-align: center; }
   #notice { margin: 1.4em 0 0; font: 12px/1.4 var(--font-voice); font-style: italic; letter-spacing: 0.06em; color: var(--mist-faint); opacity: 0.7; }
   #notice:empty { display: none; }
+  #howto { position: fixed; left: 0; right: 0; bottom: 9vh; text-align: center; pointer-events: none; font-family: var(--font-voice); font-size: clamp(15px, 1.5vw, 20px); letter-spacing: 0.04em; color: var(--mist); opacity: 0; transition: opacity 1.6s ease; padding: 0 16px; }
+  #howto.on { opacity: 0.7; }
   @keyframes breathe { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.9; } }
 
   /* Fragments: the game's rare words. */
@@ -99,6 +101,7 @@
 <body>
 <canvas id="world"></canvas>
 <div id="fragment" aria-live="polite"></div>
+<div id="howto" aria-live="polite"></div>
 <div id="end"></div>
 <canvas id="reveal"></canvas>
 <div id="revealText" aria-live="polite"></div>
