@@ -39,11 +39,40 @@ function render() {
     : '<div class="empty">No runs saved in this browser yet. Play the game here, or import an exported file.</div>';
 }
 
+// a CSV downloaded from the Google Sheet the online game sends runs to
+// (tools/collect.gs): one row per run, the full event log in the last column
+function fromSheet(text) {
+  const rows = [];
+  let row = [], cell = '', quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quoted) {
+      if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+      else if (c === '"') quoted = false;
+      else cell += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i + 1] === '\n') i++;
+      row.push(cell); rows.push(row); row = []; cell = '';
+    } else cell += c;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  const [head, ...body] = rows;
+  const col = (name) => head.indexOf(name);
+  return body.filter((r) => r[col('id')]).map((r) => {
+    let events = [];
+    try { events = JSON.parse(r[col('events')]); } catch { /* cut off at the cell limit */ }
+    return { id: r[col('id')], participant: r[col('participant')], startedAt: r[col('startedAt')], version: r[col('version')], events, fromSheet: true };
+  });
+}
+
 $('export').addEventListener('click', () => exportAll());
 $('import').addEventListener('change', async (e) => {
   const file = e.target.files[0]; if (!file) return;
   try {
-    const added = mergeRuns(JSON.parse(await file.text()));
+    const text = await file.text();
+    const added = mergeRuns(text.trim().startsWith('[') ? JSON.parse(text) : fromSheet(text));
     alert(`${added} new runs added.`);
   } catch { alert('That file could not be read.'); }
   e.target.value = '';
