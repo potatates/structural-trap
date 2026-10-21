@@ -46,12 +46,12 @@ export const CONFIG = {
     plantSize: 1.3,
     plantSleepColor: 0x141c24, // a mushroom's cap while asleep
     wakeTime: 1.2,          // seconds for one mushroom to fully light up (about as quick as a placed light)
-    wakeFrom: 2,            // mushrooms start waking once the structure holds this many lights
     plantGlow: 2.2,         // how bright a lit cap glows (above 1 blooms)
     plantHalo: 1.6,         // size of the colored glow around each cap
-    wakeLag: 10,            // mushrooms wake scattered over this much extra reach, so they light one by one
-    wakeStart: 9,           // how far one light wakes mushrooms...
-    wakePerLight: 5,        // ...and how much further each extra light reaches
+    wakeLag: 10,            // mushrooms wake roughly nearest first, shuffled over this much distance so they light one by one
+    wakeFirst: 3,           // mushrooms lit by your first light...
+    wakeEach: 2,            // ...plus this many for each light after it...
+    wakeGrowth: 0.15,       // ...a few more with every light, so a big structure lights much of the forest
     spillSize: 7,           // the colored glow a ring of mushrooms spills on the water
     spillStrength: 0.8,
     plantLights: 6,         // real colored lights given to the brightest rings (they tint the trees)

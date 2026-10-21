@@ -220,6 +220,8 @@ export function createForest(scene, center, renderer, glowTex, onWake, sparkTex 
     }
   });
   scene.add(mounds);
+  // the order mushrooms wake in: roughly nearest your base first
+  [...shrooms].sort((a, b) => a.pos.distanceTo(center) + a.lag - (b.pos.distanceTo(center) + b.lag)).forEach((sh, i) => { sh.rank = i; });
   const capGeo = new THREE.SphereGeometry(1, 7, 4, 0, Math.PI * 2, 0, Math.PI / 2);
   const stalkGeo = new THREE.CylinderGeometry(0.12, 0.18, 1, 5).translate(0, 0.5, 0);
   const caps = new THREE.InstancedMesh(capGeo, new THREE.MeshBasicMaterial({ color: 0xffffff }), shrooms.length);
@@ -316,15 +318,17 @@ export function createForest(scene, center, renderer, glowTex, onWake, sparkTex 
 
   const tmp = new THREE.Vector3();
   return {
+    debugAwake: () => shrooms.filter((sh) => sh.awake > 0.5).length + '/' + shrooms.length,
     // amount 0..1 = how much light the structure holds; `at` = where it shines from
     update(amount, at, hasLight, t = 0, count = 0) {
-      // mushrooms wake as your structure grows, nearest first, each in its own time.
-      // Even a structure of two or three lights wakes the closest ones, and their
-      // colored glow is the first thing that lets you see into the dark.
-      const reach = count >= F.wakeFrom ? F.wakeStart + F.wakePerLight * count : 0;
+      // mushrooms wake as your structure grows, nearest first, each in its own time:
+      // three for your first light, a couple more for each after. Their colored
+      // glow is the first thing that lets you see into the dark.
+      const n = count - 1;
+      const awake = count > 0 ? Math.round(F.wakeFirst + F.wakeEach * n * (1 + n * F.wakeGrowth)) : 0;
       let changed = false;
       shrooms.forEach((sh, i) => {
-        const want = sh.pos.distanceTo(at) + sh.lag < reach ? 1 : 0;
+        const want = sh.rank < awake ? 1 : 0;
         if (want && !sh.wasAwake && onWake) onWake(sh.pos);
         sh.wasAwake = !!want;
         const before = sh.awake;
@@ -351,6 +355,8 @@ export function createForest(scene, center, renderer, glowTex, onWake, sparkTex 
         l.color.copy(sp.color);
         l.intensity = sp.awake * F.plantLightStrength;
       });
+      // fireflies gather once your light reaches them
+      const reach = count >= 2 ? 9 + 5 * count : 0;
       for (const sw of swarms) {
         const want = tmp.copy(sw.at).distanceTo(at) < reach ? 1 : 0;
         sw.awake += (want - sw.awake) * 0.015;
