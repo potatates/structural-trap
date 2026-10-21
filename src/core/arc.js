@@ -28,6 +28,8 @@ export function createArc({ structure, cracks, observations, log, onEnd }) {
 
   return {
     get phase() { return phase; },
+    // true from the moment the run is decided (base pulled), before it fades out
+    get over() { return phase === 'ended' || endIn !== Infinity; },
 
     // the base cracked (called from the structure's crack hook)
     baseCracked() {
@@ -44,6 +46,7 @@ export function createArc({ structure, cracks, observations, log, onEnd }) {
       if (phase === 'base' && wasBase && node.cracked) {
         endReason = 'pulled_base';
         endIn = A.endAfterFall;
+        observations.stop();   // no new lights once the base is gone
       }
     },
 

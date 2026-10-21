@@ -169,7 +169,7 @@ function frame() {
   presence.update(t);
   trail.update(dt);
   observations.update(t, dt);
-  if (arc.phase !== 'ended') catching.update(t, dt);
+  if (!arc.over) catching.update(t, dt);
   if (audio.started) { cracks.update(dt); arc.update(dt); }
   structure.update(t, dt);
   audio.setSour(structure.sour);

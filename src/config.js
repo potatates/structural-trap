@@ -209,7 +209,7 @@ export const CONFIG = {
     lateGapScale: 3,        // once the base cracks, new lights come this many times more rarely
     baseSpread: 0.35,       // ...and dimness creeps this much slower, so it builds as dread
     shudder: 1.6,           // seconds the whole structure trembles when the base cracks
-    endAfterFall: 7,        // seconds after pulling the cracked base before the run ends (let the fall be heard)
+    endAfterFall: 4,        // seconds after pulling the cracked base before the run ends (let the fall be heard)
     darkAt: 0.8,            // holding on: the run ends once the structure is this soured...
     darkHold: 12,           // ...for this many seconds
     maxAfterBase: 150,      // ...or this long after the base cracked, whichever comes first
@@ -217,9 +217,9 @@ export const CONFIG = {
 
   // ── The reveal at the end (see src/ui/reveal.js) ────────────────────────
   reveal: {
-    after: 9,               // seconds into the fade before the ghosts appear
-    ghostsIn: 4,            // seconds for every light you placed to reappear
-    basePause: 2,         // the cracked base glows alone this long
+    after: 4,               // seconds into the fade before the ghosts appear
+    ghostsIn: 2.5,            // seconds for every light you placed to reappear
+    basePause: 1,         // the cracked base glows alone this long
     waveStep: 0.45,         // seconds for the wave to climb one thread
     linesAfter: 1.5,        // seconds after the wave before the first line
     lineGap: 2.6,           // seconds between lines
@@ -326,7 +326,7 @@ export const CONFIG = {
     letGoMurk: 0.35,        // ...that is, when a light around a cracked one has dimmed this much
     letGoDelay: 1,          // seconds after that
     letGoHold: 7,
-    endFade: 16,            // seconds for the world (and its music) to fade at the end
+    endFade: 10,            // seconds for the world (and its music) to fade at the end
     // The reveal's lines (placeholders for Mia's writing). {total} = lights placed in
     // the whole run, {onBase} = lights in the structure whose base cracked,
     // {letGo} = lights the player pulled out, {fell} = lights that fell.

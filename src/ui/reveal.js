@@ -57,7 +57,8 @@ export function createReveal(camera, structure, log, save = () => {}) {
 
     // the last generation: the base that cracked and everything built on it
     const H = structure.history;
-    const gen = H.length ? H[H.length - 1].gen : 0;
+    const crackedBase = H.findLast((h) => h.isBase && h.cracked);
+    const gen = crackedBase ? crackedBase.gen : (H.length ? H[H.length - 1].gen : 0);
     const all = H.filter((h) => h.gen === gen);
     const byId = new Map(all.map((h) => [h.id, h]));
     // how many threads from the base each light is (the wave reaches it then)
