@@ -336,7 +336,7 @@ export const CONFIG = {
       someOnBase: '{onBase} of them rested on the base.',
       pulled: 'when it went, everything on it fell.',
       dark: 'you held on, and the dark took them all.',
-      closing: '',            // an optional last line (empty = none)
+      closing: "we don't keep a belief because it's true, but because so much rests on it.",
       again: 'touch to begin again',
     },
     // one question after the reveal (placeholder wording); the answer is logged
