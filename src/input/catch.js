@@ -99,6 +99,10 @@ export function createCatching(scene, camera, pointer, observations, structure, 
 
   return {
     get busy() { return !!(held || carried); },
+    // the run is over: let every ring and thread fade away
+    fadeOut() {
+      for (const m of [ringMat, hintMat, targetMat, pMat]) m.opacity *= 0.85;
+    },
     update(t, dt) {
       if (pointer.down) {
         if (!held && !carried && !pulling && !pressConsumed) {
