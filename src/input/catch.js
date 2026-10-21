@@ -199,10 +199,11 @@ export function createCatching(scene, camera, pointer, observations, structure, 
         // until the player has pulled a light once, a slow closing ring on the
         // cracked light suggests it can be held (and let go of)
         const cn = structure.nodes.find((n) => n.cracked);
-        const cyc = (t * 0.5) % 1;
+        // kept faint and slow: a suggestion, not an order
+        const cyc = (t * 0.22) % 1;
         target.position.copy(cn.pos);
-        target.scale.setScalar(cn.size * (4.5 - 2.7 * cyc));
-        targetMat.opacity = 0.35 * Math.sin(cyc * Math.PI);
+        target.scale.setScalar(cn.size * (3.2 - 1.2 * cyc));
+        targetMat.opacity = 0.12 * Math.sin(cyc * Math.PI);
         pMat.opacity *= 0.8;
       } else {
         pMat.opacity *= 0.8;

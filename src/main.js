@@ -154,6 +154,8 @@ window.addEventListener('keydown', (e) => {
   if (DEBUG && (e.key === 'e' || e.key === 'E')) arc.forceEnd();
 });
 document.addEventListener('visibilitychange', () => audio.suspend(document.hidden));
+window.addEventListener('focus', () => audio.wake());
+for (const type of ['pointerdown', 'pointermove', 'keydown', 'touchstart']) window.addEventListener(type, () => audio.wake(), { passive: true });
 
 // ── Frame loop ───────────────────────────────────────────────────────────────
 const clock = new THREE.Clock();

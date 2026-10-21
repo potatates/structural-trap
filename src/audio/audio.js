@@ -24,6 +24,12 @@ export function createAudio() {
   let reverb, touch, events;
   const mix = { fullness: 0, sour: 0, rots: [] }; // fullness: 0 = in the dark, 1 = fully lit; sour: 0 = sound, 1 = gone bad
 
+  function wake() {
+    if (!started) return;
+    const ctx = Tone.getContext().rawContext;
+    if (ctx.state !== 'running') ctx.resume().catch(() => {});
+  }
+
   async function start() {
     if (started) return;
     started = true;
@@ -85,8 +91,11 @@ export function createAudio() {
     suspend(hidden) {
       if (!started) return;
       if (hidden) Tone.getContext().rawContext.suspend();
-      else Tone.getContext().rawContext.resume();
+      else wake();
     },
+    // bring the sound back if the browser paused it (some, like Safari, only allow
+    // that from a click or key, so this also runs on the player's next touch)
+    wake,
     stop() { timers.forEach(clearTimeout); },
   };
 }
