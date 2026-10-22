@@ -33,8 +33,11 @@ export function createAudio() {
   async function start() {
     if (started) return;
     started = true;
+    // a roomier audio buffer than the default: the graphics can keep the computer
+    // busy, and a tight buffer then runs dry, which is heard as choppy, breaking sound
+    Tone.setContext(new Tone.Context({ latencyHint: 'playback', lookAhead: 0.2 }));
     await Tone.start();
-    Tone.Destination.volume.value = -60;
+    Tone.getDestination().volume.value = -60;
 
     reverb = new Tone.Reverb({ decay: A.reverb.decay, wet: A.reverb.wet }).toDestination();
     await reverb.generate();
@@ -45,7 +48,7 @@ export function createAudio() {
     events = buildEvents(reverb, A.events);
     buildAir(reverb, A.air);
 
-    Tone.Destination.volume.rampTo(A.masterVolume, A.fadeIn);
+    Tone.getDestination().volume.rampTo(A.masterVolume, A.fadeIn);
   }
 
   return {
@@ -63,7 +66,7 @@ export function createAudio() {
     crack(p) { if (events) events.crack(p); },
     baseCrack() { if (events) events.baseCrack(); },
     // the end: everything slowly falls silent
-    fadeOut(seconds) { if (started) Tone.Destination.volume.rampTo(-60, seconds); },
+    fadeOut(seconds) { if (started) Tone.getDestination().volume.rampTo(-60, seconds); },
     pullStart(p, dur) { if (events) events.pullStart(p, dur); },
     pullStop() { if (events) events.pullStop(); },
     collapse(n, p, isBase) { if (events) events.collapse(n, p, isBase); },
@@ -86,7 +89,7 @@ export function createAudio() {
     toggleMute() {
       if (!started) return;
       muted = !muted;
-      Tone.Destination.mute = muted;
+      Tone.getDestination().mute = muted;
     },
     suspend(hidden) {
       if (!started) return;
