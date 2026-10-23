@@ -25,6 +25,10 @@
   button:hover, label.btn:hover { border-color: rgba(185, 198, 228, 0.4); }
   .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 28px; }
   .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .card.wide { grid-column: span 2; }
+  @media (max-width: 560px) { .card.wide { grid-column: auto; } }
+  .split small { color: var(--faint); }
+  .card.wide .split .n { flex-basis: 110px; }
   .card h2 { font: 12px var(--ui); letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); margin: 0 0 10px; }
   .big { font: 34px/1 var(--voice); }
   .split { margin-top: 6px; }

@@ -196,6 +196,7 @@ export const CONFIG = {
     every: [12, 20],        // seconds between new cracks (random range)
     maxActive: 3,           // at most this many cracked lights at once
     minAge: 6,              // a light must have stood this long before it can crack
+    earlyAtLights: 3,       // EARLY version only: the base cracks once the structure holds this many lights
     cracksBeforeBase: 4,    // the base never cracks before the player has met this many smaller cracks
     baseAfterLights: 13,    // late game: the base cracks once the structure reaches this size...
     baseAfterTime: 240,     // ...or this many seconds after the base was planted, whichever is first
@@ -229,9 +230,13 @@ export const CONFIG = {
 
   // ── The study (see src/study/) ──────────────────────────────────────────
   study: {
-    version: 'collapse-0.7',  // saved with each run, so runs from different builds can be told apart
+    version: 'collapse-0.8',  // saved with each run, so runs from different builds can be told apart
     saveEvery: 10,            // seconds between saves while playing (an unfinished run is still kept)
     endpoint: 'https://script.google.com/macros/s/AKfycbzkH7Ny8qHyUO7r1mjSrPMmvM3eYfSKcnP55dpzYk9kPt-KbHdmR3g5mAcDqebqkpPeYA/exec',             // Google Apps Script web app URL that collects runs from anywhere (see tools/collect.gs); empty = this computer only
+    // two versions of the game, assigned at random (or ?v=early / ?v=late in the URL):
+    // 'late' = the base cracks late, when everything rests on it; 'early' = it also
+    // cracks after a few lights, when little rests on it. Same flaw, different cost.
+    variants: ['early', 'late'],
     notice: 'your play is recorded anonymously for a study.', // shown under "touch the dark" when runs are sent away
   },
 
@@ -343,11 +348,11 @@ export const CONFIG = {
       closing: 'the more we build on something, the more it costs to let it go.',
       again: 'touch to begin again',
     },
-    // one question after the reveal (placeholder wording); the answer is logged
-    question: {
-      ask: 'did you know everything rested on your first light?',
-      answers: ['yes, while I was playing', 'only at the end', 'no'],
-    },
+    // questions after the reveal, asked one after another; each answer is logged
+    questions: [
+      { id: 'knew', ask: 'did you know everything rested on your first light?', answers: ['yes, while I was playing', 'only at the end', 'no'] },
+      { id: 'first', ask: 'is this your first time playing?', answers: ['yes', 'no'] },
+    ],
     // the full record of the run, shown beside the replay
     stats: {
       gathered: 'lights gathered',

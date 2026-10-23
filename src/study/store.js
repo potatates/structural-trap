@@ -52,7 +52,11 @@ export function createRunRecord(log) {
   const participant = params.get('p') || (CONFIG.study.endpoint
     ? `W-${Math.random().toString(36).slice(2, 7)}`
     : `P${String(existing.length + 1).padStart(2, '0')}`);
+  const pick = params.get('v');
+  const variants = CONFIG.study.variants;
+  const variant = variants.includes(pick) ? pick : variants[Math.floor(Math.random() * variants.length)];
   const run = {
+    variant,
     id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
     participant,
     startedAt: new Date().toISOString(),
@@ -76,7 +80,7 @@ export function createRunRecord(log) {
     const url = CONFIG.study.endpoint;
     if (!url || !started) return;
     run.summary = summarize(run);
-    const body = JSON.stringify({ stage, id: run.id, participant: run.participant, startedAt: run.startedAt, version: run.version, summary: run.summary, events: run.events });
+    const body = JSON.stringify({ stage, id: run.id, participant: run.participant, variant: run.variant, startedAt: run.startedAt, version: run.version, summary: run.summary, events: run.events });
     if (body === lastSent) return;
     lastSent = body;
     // text/plain keeps this a simple request (no preflight), which Apps Script accepts

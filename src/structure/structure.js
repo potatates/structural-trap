@@ -209,7 +209,7 @@ export function createStructure(scene, glow, spark, log) {
       node.fracture.renderOrder = 10;
       scene.add(node.fracture);
       for (let k = 0; k < 6; k++) puff(node.pos, node.size * 1.4);
-      log.add('light_cracked', { node: node.id, light: node.lightId, depth: node.depth, isBase: !node.parent, resting: descendants(node).length });
+      log.add('light_cracked', { node: node.id, light: node.lightId, depth: node.depth, isBase: !node.parent, early: !!node.early, resting: descendants(node).length });
       hooks.onCrack && hooks.onCrack(node);
     },
 

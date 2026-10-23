@@ -44,8 +44,8 @@ export function createAudio() {
 
     mix.pad = buildPad(reverb, A.pad, A.sub, timers, mix);
     buildSprinkles(reverb, A.sprinkles, timers, mix);
-    touch = buildTouch(reverb, A.sprinkles.notes, A.touch, mix);
-    events = buildEvents(reverb, A.events);
+    touch = guard({ f: buildTouch(reverb, A.sprinkles.notes, A.touch, mix) }).f;
+    events = guard(buildEvents(reverb, A.events));
     buildAir(reverb, A.air);
 
     Tone.getDestination().volume.rampTo(A.masterVolume, A.fadeIn);
@@ -101,6 +101,16 @@ export function createAudio() {
     wake,
     stop() { timers.forEach(clearTimeout); },
   };
+}
+
+// A sound going wrong must never stop the game: each sound call is wrapped so an
+// error is logged and skipped instead of breaking the frame it happened in.
+function guard(api) {
+  const out = {};
+  for (const [k, fn] of Object.entries(api)) {
+    out[k] = (...args) => { try { return fn(...args); } catch (e) { console.warn('sound skipped:', k, e.message); } };
+  }
+  return out;
 }
 
 // Rot: what a soured structure does to a sound. A warble (like a warped tape),
@@ -267,10 +277,14 @@ function buildEvents(out, ev) {
   // a plant waking: one soft high glint
   const glint = new Tone.Synth({ oscillator: { type: 'sine' }, envelope: { attack: 0.01, decay: 0.9, sustain: 0, release: 0.8 }, volume: ev.volume - 14 }).connect(pan);
   let lastWake = 0;
+  // the crack sounds share single-voice synths, so two cracks close together must
+  // not schedule a note earlier than one already queued (Tone refuses that)
+  let crackFree = 0;
+  const crackTime = (span) => { const t = Math.max(Tone.now(), crackFree); crackFree = t + span; return t; };
   return {
     crack(p) {
       at(p);
-      const now = Tone.now();
+      const now = crackTime(0.12);
       crunch.triggerAttackRelease(0.15, now);
       hiss.triggerAttackRelease(ev.crackHiss, now + 0.03);
       hissBand.frequency.cancelScheduledValues(now);
@@ -284,7 +298,7 @@ function buildEvents(out, ev) {
     // the base cracking: the same hiss, far longer, over a deep fall that shakes the room
     baseCrack() {
       at(0);
-      const now = Tone.now();
+      const now = crackTime(0.2);
       crunch.triggerAttackRelease(0.3, now);
       thud.triggerAttackRelease('D1', 3, now + 0.05);
       hiss.triggerAttackRelease(ev.crackHiss * 2.5, now + 0.1);

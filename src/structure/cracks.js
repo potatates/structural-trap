@@ -12,13 +12,14 @@ import { CONFIG } from '../config.js';
 
 const rand = (a, b) => a + Math.random() * (b - a);
 
-export function createCracks(structure, log) {
+export function createCracks(structure, log, { variant = 'late', onLateKept } = {}) {
   const K = CONFIG.cracks;
   let timer = rand(K.every[0], K.every[1]);
   let baseCracked = false;
   let basePlantedAt = null;
   let clock = 0;
   const seen = new WeakMap();
+  let earlyDone = variant !== 'early'; // the early version cracks the base once, early on
   let smallCracks = 0; // cracks before the base: each one a choice to live with it or let it go
 
   return {
@@ -30,6 +31,25 @@ export function createCracks(structure, log) {
       if (base && basePlantedAt === null) basePlantedAt = clock;
       if (!base) basePlantedAt = null;
       for (const n of nodes) if (!seen.has(n)) seen.set(n, clock); // when each light joined, on this clock
+
+      // early version: the base cracks while little rests on it. Letting it go costs
+      // only a few lights, and the game carries on with a new base.
+      if (!earlyDone && base && !base.cracked && nodes.length >= K.earlyAtLights && clock - basePlantedAt >= K.minAge) {
+        earlyDone = true;
+        base.early = true;
+        structure.crack(base);
+        return;
+      }
+
+      // early version, crack kept: when the late moment comes the base is already
+      // cracked, so the late game begins on that same crack
+      if (base && !baseCracked && base.cracked &&
+          ((smallCracks >= K.cracksBeforeBase && nodes.length >= K.baseAfterLights) || clock - basePlantedAt >= K.baseAfterTime)) {
+        baseCracked = true;
+        log.add('late_on_kept_crack', { node: base.id, lights: nodes.length });
+        onLateKept && onLateKept(base);
+        return;
+      }
 
       // late game: the base cracks (once per playthrough), but only after the player
       // has faced several smaller cracks, so how they meet the base can be compared

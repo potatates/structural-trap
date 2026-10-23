@@ -178,7 +178,6 @@ export function createReveal(camera, structure, log, save = () => {}) {
         requestAnimationFrame(() => row.classList.add('on'));
       }, (statsAt + i * R.statGap) * 1000);
     });
-    // one question, then the touch to begin again
     const showAgain = () => {
       const el = document.createElement('p');
       el.className = 'again';
@@ -191,31 +190,38 @@ export function createReveal(camera, structure, log, save = () => {}) {
         window.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') again(); });
       }, 600);
     };
-    setTimeout(() => {
-      const Q = CONFIG.text.question;
-      if (!Q || !Q.ask) { showAgain(); return; }
+    // the questions, one after another, then the touch to begin again
+    const ask = (k) => {
+      const Q = (CONFIG.text.questions || [])[k];
+      if (!Q) { showAgain(); return; }
       const box = document.createElement('div');
       box.className = 'question';
-      const ask = document.createElement('p');
-      ask.textContent = Q.ask;
-      box.appendChild(ask);
+      const p = document.createElement('p');
+      p.textContent = Q.ask;
+      box.appendChild(p);
       const asked = log.now();
       Q.answers.forEach((answer, i) => {
         const b = document.createElement('button');
         b.textContent = answer;
         b.addEventListener('pointerdown', (e) => {
           e.stopPropagation();
-          log.add('question', { answer: i, text: answer, after: +(log.now() - asked).toFixed(1) });
+          if (box.classList.contains('answered')) return;
+          log.add('question', { id: Q.id, answer: i, text: answer, after: +(log.now() - asked).toFixed(1) });
           save();
           box.classList.add('answered');
           b.classList.add('chosen');
-          showAgain();
-        }, { once: true });
+          // the next question takes this one's place, so the column stays short
+          setTimeout(() => {
+            if (k + 1 < CONFIG.text.questions.length) box.remove();
+            ask(k + 1);
+          }, 700);
+        });
         box.appendChild(b);
       });
       textEl.appendChild(box);
       requestAnimationFrame(() => box.classList.add('on'));
-    }, (statsAt + rows.length * R.statGap + R.againAfter) * 1000);
+    };
+    setTimeout(() => ask(0), (statsAt + rows.length * R.statGap + R.againAfter) * 1000);
   }
 
   return { start, get running() { return running; } };

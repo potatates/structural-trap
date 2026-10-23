@@ -62,13 +62,18 @@ const structure = createStructure(scene, atmosphere.glow, spark, log);
 const forest = createForest(scene, structure.basePos, renderer, atmosphere.glow, (pos) => audio.wake(pos), spark);
 const trail = createTrail(scene, presence, spark);
 const lightAt = new THREE.Vector3();
-const cracks = createCracks(structure, log);
+const record = createRunRecord(log);
+const cracks = createCracks(structure, log, {
+  variant: record.run.variant,
+  onLateKept: () => { audio.baseCrack(); arc.baseCracked(); },
+});
 // a crack snaps; a falling light hits the water
 let hintedLetGo = false;
 const arc = createArc({ structure, cracks, observations, log, onEnd: (reason) => end(reason) });
 structure.on({
   onCrack: (n) => {
-    if (!n.parent) { audio.baseCrack(); arc.baseCracked(); }
+    // the early version's crack is not the late game; only the late crack starts it
+    if (!n.parent) { audio.baseCrack(); if (!n.early) arc.baseCracked(); }
     else audio.crack(Math.max(-0.9, Math.min(0.9, n.pos.x / 8)));
   },
   onPull: (n, wasBase) => arc.pulled(n, wasBase),
@@ -107,7 +112,7 @@ async function begin() {
   try { await audio.start(); } catch (e) { console.warn('Audio could not start', e); }
   const { opening, openingDelay, openingHold } = CONFIG.text;
   showFragment(fragment, opening, { delay: openingDelay, hold: openingHold });
-  log.add('run_started');
+  log.add('run_started', { variant: record.run.variant });
   record.begin();
   setInterval(record.save, CONFIG.study.saveEvery * 1000);
   observations.start();
@@ -146,7 +151,6 @@ canvas.addEventListener('pointermove', (e) => {
 });
 
 // every run is saved on this computer for the study (see src/study/store.js)
-const record = createRunRecord(log);
 window.addEventListener('pagehide', () => { record.save(); record.send('leaving'); });
 
 window.addEventListener('keydown', (e) => {
